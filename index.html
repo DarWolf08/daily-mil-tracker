@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1f6f8b"><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icons/icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Milk Tracker"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><title>Daily Milk Tracker</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1f6f8b"><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Milk Tracker"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><title>Daily Milk Tracker</title>
 <style>
 :root{--bg:#f6f3ec;--card:#fff;--tx:#1b2430;--mu:#6b7684;--ac:#1f6f8b;--on:#fff;--bd:#e3ded2;--warn:#c2410c;--ok:#15803d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10161b;--card:#192229;--tx:#e8eef3;--mu:#92a0ad;--ac:#5cc2dd;--on:#06222b;--bd:#27333c;--warn:#fb923c;--ok:#4ade80}}
@@ -110,3 +110,4 @@ $("#sheet").addEventListener("click",e=>{if(e.target.id==="sheet")closeSheet()})
 render();
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 </script></body></html>
+
