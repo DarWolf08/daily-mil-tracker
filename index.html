@@ -1,0 +1,112 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1f6f8b"><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icons/icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Milk Tracker"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><title>Daily Milk Tracker</title>
+<style>
+:root{--bg:#f6f3ec;--card:#fff;--tx:#1b2430;--mu:#6b7684;--ac:#1f6f8b;--on:#fff;--bd:#e3ded2;--warn:#c2410c;--ok:#15803d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10161b;--card:#192229;--tx:#e8eef3;--mu:#92a0ad;--ac:#5cc2dd;--on:#06222b;--bd:#27333c;--warn:#fb923c;--ok:#4ade80}}
+:root[data-theme="dark"]{--bg:#10161b;--card:#192229;--tx:#e8eef3;--mu:#92a0ad;--ac:#5cc2dd;--on:#06222b;--bd:#27333c;--warn:#fb923c;--ok:#4ade80}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;height:100%;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;touch-action:manipulation}
+header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--ac);color:var(--on)}
+header h1{margin:0;font-size:19px}
+header button{background:transparent;color:inherit;border:1px solid currentColor;border-radius:20px;padding:6px 12px}
+main{flex:1;overflow-y:auto;padding:12px 12px 20px;max-width:640px;width:100%;margin:0 auto}
+nav{display:flex;background:var(--card);border-top:1px solid var(--bd)}
+nav button{flex:1;padding:13px 4px;border:0;background:none;color:var(--mu);font:inherit;font-weight:600}
+nav button.on{color:var(--ac);box-shadow:inset 0 3px 0 var(--ac)}
+button{font:inherit;cursor:pointer}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px;margin-bottom:12px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.bar b{font-size:17px;text-align:center;flex:1}
+.bar button,.seg button,.btns button{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:9px 14px}
+.seg{display:flex;gap:6px;margin-bottom:10px}.seg button{flex:1}
+.seg button.on,.pri{background:var(--ac)!important;color:var(--on)!important;border-color:var(--ac)!important;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.dow{text-align:center;color:var(--mu);font-size:12px;padding:2px}
+.cell{min-height:56px;border:1px solid var(--bd);border-radius:10px;padding:4px;background:var(--card);color:var(--tx);text-align:left;font-size:11px;position:relative}
+.cell b{display:block;font-size:13px}.cell.today{border:2px solid var(--ac)}.cell.fut{opacity:.55}.cell.off{visibility:hidden}
+.cell i{position:absolute;right:4px;top:5px;width:7px;height:7px;border-radius:50%;background:var(--warn)}
+.row{display:flex;justify-content:space-between;gap:8px;padding:11px 4px;border-bottom:1px solid var(--bd);align-items:center}
+.row:last-child{border:0}.row small,.mu{color:var(--mu)}.row .r{font-weight:700;white-space:nowrap}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stats div{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:9px;font-size:12px;color:var(--mu)}
+.stats b{display:block;font-size:16px;color:var(--tx)}.due{color:var(--warn)!important}.good{color:var(--ok)!important}
+table{width:100%;border-collapse:collapse}th,td{padding:7px 3px;text-align:right;border-bottom:1px solid var(--bd)}th:first-child,td:first-child{text-align:left}th{color:var(--mu);font-weight:600;font-size:12px}
+h3,h4{margin:4px 0 8px}
+input,select{font:inherit;font-size:16px;width:100%;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx)}
+label{display:block;font-size:13px;color:var(--mu);margin:8px 0}label input{margin-top:3px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.del{background:none;border:0;color:var(--warn);padding:6px}
+#sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;z-index:5}#sheet.open{display:flex}
+.sh{background:var(--card);width:100%;max-width:640px;margin:0 auto;border-radius:18px 18px 0 0;padding:16px;max-height:88%;overflow-y:auto;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}.btns button{flex:1}
+</style></head><body>
+<header><h1>Daily Milk Tracker</h1><button onclick="cycleTheme()" id="tb">Theme</button></header>
+<main id="main"></main>
+<nav><button data-t="cal" onclick="tab('cal')">Calendar</button><button data-t="sum" onclick="tab('sum')">Summary</button><button data-t="pay" onclick="tab('pay')">Payments</button><button data-t="items" onclick="tab('items')">Items</button></nav>
+<div id="sheet"></div>
+<script>
+"use strict";
+const KEY="dmt:v1",CUR="\u20B9",$=s=>document.querySelector(s),p2=n=>(n<10?"0":"")+n;
+const iso=d=>d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate()),today=()=>iso(new Date());
+const D0=d=>new Date(d+"T00:00"),n=x=>+(+x).toFixed(2),money=x=>CUR+(+x).toLocaleString("en-IN",{maximumFractionDigits:2});
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=d=>d.toLocaleDateString("en-IN",{day:"numeric",month:"short"});
+function def(){const t=today(),m=(id,name,unit,price)=>({id,name,unit,price,sub:0,from:t});
+return{theme:"auto",vendor:"",items:[m("milk","Milk","L",60),m("paneer","Paneer","kg",400),m("curd","Curd","kg",80),m("fruit","Fruit","kg",100),m("ghee","Ghee","kg",700)],entries:{},pays:[]}}
+function load(){try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}return def()}
+let D=load();function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){}}
+const V={tab:"cal",view:"month",cur:new Date()};
+/* ---- calculations ---- */
+function qty(ds,it){const e=D.entries[ds];if(e&&it.id in e)return e[it.id];return it.sub>0&&ds>=it.from?it.sub:0}
+function dayAmt(ds){return D.items.reduce((t,i)=>t+qty(ds,i)*i.price,0)}
+function range(a,b){const rows={},td=today();D.items.forEach(i=>rows[i.id]={q:0,a:0});
+for(let d=D0(a);iso(d)<=b&&iso(d)<=td;d.setDate(d.getDate()+1)){const s=iso(d);D.items.forEach(i=>{const q=qty(s,i);rows[i.id].q+=q;rows[i.id].a+=q*i.price})}
+return{rows,t:D.items.reduce((t,i)=>t+rows[i.id].a,0)}}
+function earliest(){const ds=Object.keys(D.entries).concat(D.items.filter(i=>i.sub>0).map(i=>i.from),D.pays.map(p=>p.date)).sort();return ds[0]&&ds[0]<today()?ds[0]:today()}
+const paid=(pre)=>D.pays.filter(p=>p.date.startsWith(pre)).reduce((t,p)=>t+p.amt,0);
+function monthRange(){const c=V.cur,y=c.getFullYear(),m=c.getMonth();return[iso(new Date(y,m,1)),iso(new Date(y,m+1,0)),y+"-"+p2(m+1)]}
+/* ---- navigation / theme ---- */
+function tab(t){V.tab=t;render()}
+function nav(k){const c=V.cur;if(V.tab==="cal"&&V.view==="week")c.setDate(c.getDate()+7*k);else V.cur=new Date(c.getFullYear(),c.getMonth()+k,1);render()}
+function setView(v){V.view=v;render()}
+function cycleTheme(){D.theme={auto:"light",light:"dark",dark:"auto"}[D.theme];save();render()}
+/* ---- views ---- */
+function navBar(title){return'<div class="bar"><button onclick="nav(-1)" aria-label="Previous">&#9664;</button><b>'+title+'</b><button onclick="nav(1)" aria-label="Next">&#9654;</button></div>'}
+function vCal(){const c=V.cur,m=V.view==="month";let from,to,title,body="";
+if(m){from=new Date(c.getFullYear(),c.getMonth(),1);to=new Date(c.getFullYear(),c.getMonth()+1,0);title=c.toLocaleDateString("en-IN",{month:"long",year:"numeric"})}
+else{from=new Date(c);from.setDate(c.getDate()-c.getDay());to=new Date(from);to.setDate(from.getDate()+6);title=fmt(from)+" to "+fmt(to)}
+const r=range(iso(from),iso(to)),td=today(),milk=D.items[0];
+if(m){body='<div class="grid">'+"SMTWTFS".split("").map(x=>'<div class="dow">'+x+"</div>").join("")+'<div></div>'.repeat(from.getDay());
+for(let d=new Date(from);d<=to;d.setDate(d.getDate()+1)){const s=iso(d),q=qty(s,milk),ex=D.items.slice(1).some(i=>qty(s,i)>0);
+body+='<button class="cell'+(s===td?" today":"")+(s>td?" fut":"")+'" onclick="openDay(\''+s+'\')"><b>'+d.getDate()+"</b>"+(q?n(q)+milk.unit:"")+(ex?"<i></i>":"")+"</button>"}
+body+="</div>"}
+else{for(let d=new Date(from);d<=to;d.setDate(d.getDate()+1)){const s=iso(d),ex=D.items.slice(1).filter(i=>qty(s,i)>0).map(i=>esc(i.name)+" "+n(qty(s,i))+esc(i.unit)).join(", "),q=qty(s,milk);
+body+='<div class="row" onclick="openDay(\''+s+'\')" style="'+(s>td?"opacity:.55":"")+'"><div><b>'+d.toLocaleDateString("en-IN",{weekday:"short",day:"numeric"})+(s===td?" (today)":"")+'</b><br><small>Milk '+n(q)+esc(milk.unit)+(ex?", "+ex:"")+'</small></div><span class="r">'+money(dayAmt(s))+"</span></div>"}}
+return'<div class="seg"><button class="'+(m?"on":"")+'" onclick="setView(\'month\')">Month</button><button class="'+(m?"":"on")+'" onclick="setView(\'week\')">Week</button></div><div class="card">'+navBar(title)+body+'</div><div class="card"><div class="row"><span>'+(m?"Month":"Week")+' total up to today</span><span class="r">'+money(r.t)+'</span></div><small class="mu">Dots mark days with extra items. Tap a day to enter quantities. Days follow your daily subscription unless you edit them.</small></div>'}
+function sumTable(r){const rows=D.items.filter(i=>r.rows[i.id].q>0).map(i=>"<tr><td>"+esc(i.name)+"</td><td>"+n(r.rows[i.id].q)+esc(i.unit)+"</td><td>"+money(i.price)+"</td><td><b>"+money(r.rows[i.id].a)+"</b></td></tr>").join("");
+return rows?"<table><tr><th>Item</th><th>Qty</th><th>Rate</th><th>Amount</th></tr>"+rows+"<tr><td><b>Total</b></td><td></td><td></td><td><b>"+money(r.t)+"</b></td></tr></table>":'<p class="mu">Nothing recorded yet.</p>'}
+function vSum(){const[a,b,ym]=monthRange(),r=range(a,b),pm=paid(ym),all=range(earliest(),today()),pa=D.pays.reduce((t,p)=>t+p.amt,0),due=all.t-pa;
+return'<div class="card">'+navBar(V.cur.toLocaleDateString("en-IN",{month:"long",year:"numeric"}))+'<div class="stats"><div>Month total<b>'+money(r.t)+'</b></div><div>Paid<b>'+money(pm)+'</b></div><div>Month balance<b class="'+(r.t-pm>0?"due":"good")+'">'+money(r.t-pm)+"</b></div></div>"+sumTable(r)+'</div><div class="card"><h3>Overall due'+(D.vendor?" to "+esc(D.vendor):" to vendor")+'</h3><div class="stats"><div>Total bill<b>'+money(all.t)+'</b></div><div>Total paid<b>'+money(pa)+'</b></div><div>To pay<b class="'+(due>0?"due":"good")+'">'+money(due)+"</b></div></div><h4>All items so far</h4>"+sumTable(all)+"</div>"}
+function vPay(){const[,,ym]=monthRange(),pa=D.pays.reduce((t,p)=>t+p.amt,0),due=range(earliest(),today()).t-pa;
+const list=D.pays.slice().sort((x,y)=>y.date.localeCompare(x.date)).map(p=>'<div class="row"><div><b>'+money(p.amt)+"</b><br><small>"+D0(p.date).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})+(p.note?", "+esc(p.note):"")+'</small></div><button class="del" onclick="delPay(\''+p.id+"')\">Delete</button></div>").join("");
+return'<div class="stats"><div>Paid this month<b>'+money(paid(ym))+'</b></div><div>Total paid<b>'+money(pa)+'</b></div><div>Still to pay<b class="'+(due>0?"due":"good")+'">'+money(due)+'</b></div></div><div class="card"><h3>Record a payment'+(D.vendor?" to "+esc(D.vendor):"")+'</h3><div class="two"><label>Amount ('+CUR+')<input id="pa" type="number" inputmode="decimal" min="0"></label><label>Date<input id="pd" type="date" value="'+today()+'"></label></div><label>Note (optional)<input id="pn" placeholder="Cash, UPI..."></label><div class="btns"><button class="pri" onclick="addPay()">Add payment</button></div></div><div class="card"><h3>Payment history</h3>'+(list||'<p class="mu">No payments yet.</p>')+"</div>"}
+function vItems(){const rows=D.items.map(i=>'<div class="card"><div class="bar"><b style="text-align:left">'+esc(i.name)+"</b>"+(i.id==="milk"?"":'<button class="del" onclick="delItem(\''+i.id+"')\">Remove</button>")+'</div><div class="two"><label>Price per '+esc(i.unit)+' ('+CUR+')<input type="number" inputmode="decimal" min="0" value="'+i.price+'" onchange="setIt(\''+i.id+"','price',this.value)\"></label><label>Unit<input value=\""+esc(i.unit)+'" onchange="setIt(\''+i.id+"','unit',this.value)\"></label><label>Daily subscription ("+esc(i.unit)+')<input type="number" inputmode="decimal" step="0.25" min="0" value="'+i.sub+'" onchange="setIt(\''+i.id+"','sub',this.value)\"></label><label>Subscription starts<input type=\"date\" value=\""+i.from+'" onchange="setIt(\''+i.id+"','from',this.value)\"></label></div></div>").join("");
+return'<div class="card"><label>Vendor name<input value="'+esc(D.vendor)+'" placeholder="Dairy / vendor" onchange="D.vendor=this.value;save()"></label><p class="mu">Theme: tap the button at the top to switch Auto, Light or Dark (now '+D.theme+'). Quantity 0 means no subscription. Prices apply to all dates.</p></div>'+rows+'<div class="card"><h3>Add an item</h3><div class="two"><label>Name<input id="nn" placeholder="Butter"></label><label>Unit<input id="nu" placeholder="kg" value="kg"></label></div><label>Price per unit<input id="np" type="number" inputmode="decimal" min="0"></label><div class="btns"><button class="pri" onclick="addItem()">Add item</button></div></div>'}
+/* ---- actions ---- */
+function openDay(ds){V.day=ds;const f=D.items.map(i=>"<label>"+esc(i.name)+" <small>("+esc(i.unit)+" at "+money(i.price)+')</small><input id="q_'+i.id+'" type="number" inputmode="decimal" step="0.25" min="0" value="'+n(qty(ds,i))+'"></label>').join("");
+$("#sheet").innerHTML='<div class="sh"><h3>'+D0(ds).toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})+"</h3>"+f+'<div class="btns"><button class="pri" onclick="saveDay()">Save</button><button onclick="resetDay()">Use subscription</button><button onclick="closeSheet()">Cancel</button></div></div>';$("#sheet").classList.add("open")}
+function closeSheet(){$("#sheet").classList.remove("open")}
+function saveDay(){const e={};D.items.forEach(i=>e[i.id]=Math.max(0,parseFloat($("#q_"+i.id).value)||0));D.entries[V.day]=e;save();closeSheet();render()}
+function resetDay(){delete D.entries[V.day];save();closeSheet();render()}
+function setIt(id,k,v){const i=D.items.find(x=>x.id===id);i[k]=(k==="price"||k==="sub")?Math.max(0,parseFloat(v)||0):v||(k==="unit"?"unit":today());save()}
+function addItem(){const nm=$("#nn").value.trim();if(!nm)return;D.items.push({id:"i"+Date.now().toString(36),name:nm,unit:$("#nu").value.trim()||"unit",price:Math.max(0,parseFloat($("#np").value)||0),sub:0,from:today()});save();render()}
+function delItem(id){D.items=D.items.filter(i=>i.id!==id);D.pays=D.pays;save();render()}
+function addPay(){const a=parseFloat($("#pa").value);if(!(a>0))return;D.pays.push({id:"p"+Date.now().toString(36),amt:a,date:$("#pd").value||today(),note:$("#pn").value.trim()});save();render()}
+function delPay(id){D.pays=D.pays.filter(p=>p.id!==id);save();render()}
+function render(){const r=document.documentElement;if(D.theme==="auto")r.removeAttribute("data-theme");else r.dataset.theme=D.theme;
+$("#tb").textContent="Theme: "+D.theme;$("#main").innerHTML=({cal:vCal,sum:vSum,pay:vPay,items:vItems})[V.tab]();
+document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===V.tab))}
+$("#sheet").addEventListener("click",e=>{if(e.target.id==="sheet")closeSheet()});
+render();
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script></body></html>
